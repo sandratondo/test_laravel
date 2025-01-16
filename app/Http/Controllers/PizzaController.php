@@ -15,16 +15,31 @@ class PizzaController extends Controller
     }
 
 
-     // Crear una nueva pizza.
+    public function create()
+    {
+
+        return inertia('Pizzas/Create');
+    }
+
+    // Crear una nueva pizza
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'image' => 'required|string|max:255',
+            'ingredient_ids' => 'required|array',  // Verificar que se pasen los ingredientes
+            'ingredient_ids.*' => 'exists:ingredients,id',  // Verificar que los ingredientes existan
+        ]);
+    
+        // Crear la pizza
         $pizza = Pizza::create([
             'name' => $request->name,
             'image' => $request->image,
         ]);
-
+    
+        // Asociar los ingredientes seleccionados a la pizza
         $pizza->ingredients()->attach($request->ingredient_ids);
-
+    
         return response()->json($pizza, 201);
     }
 
